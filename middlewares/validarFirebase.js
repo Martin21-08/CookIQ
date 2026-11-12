@@ -5,10 +5,7 @@
 async function validarFirebase(req, res, next) {
 
     const {
-        nombres,
-        apellidos,
         correo,
-        telefono,
         googleId
     } = req.body;
 
@@ -59,7 +56,20 @@ async function validarFirebase(req, res, next) {
 
             req.firebaseGoogleUser = {
                 googleId: usuarioVerificado.localId,
-                correo: usuarioVerificado.email
+                correo: usuarioVerificado.email,
+                fotoGoogle: (() => {
+                    const proveedoresGoogle = Array.isArray(usuarioVerificado.providerUserInfo)
+                        ? usuarioVerificado.providerUserInfo.filter(proveedor => proveedor.providerId === 'google.com')
+                        : [];
+                    const fotos = [usuarioVerificado.photoUrl, ...proveedoresGoogle.map(proveedor => proveedor.photoUrl)];
+                    for (const foto of fotos) {
+                        try {
+                            const url = new URL(foto);
+                            if (url.protocol === 'https:' && (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com'))) return url.href;
+                        } catch { /* Una foto ausente o incorrecta permite probar la del proveedor verificado. */ }
+                    }
+                    return null;
+                })()
             };
             return next();
         } catch (error) {
@@ -69,34 +79,6 @@ async function validarFirebase(req, res, next) {
                 error: 'No se pudo verificar la cuenta de Google. Inténtalo nuevamente.'
             });
         }
-    }
-
-    /*
-     * SMS necesita:
-     * nombres
-     * apellidos
-     * teléfono
-     */
-    if (telefono) {
-
-        if (typeof nombres !== 'string' || !nombres.trim() ||
-            typeof apellidos !== 'string' || !apellidos.trim()) {
-
-            return res.status(400).json({
-                ok: false,
-                error: 'Faltan nombres o apellidos.'
-            });
-        }
-
-        if (!telefono.startsWith('+569')) {
-
-            return res.status(400).json({
-                ok: false,
-                error: 'El teléfono debe comenzar con +569.'
-            });
-        }
-
-        return next();
     }
 
     return res.status(400).json({

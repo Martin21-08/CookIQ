@@ -1,0 +1,9 @@
+/* Interruptor original de Descubre, compartido sin cambiar su apariencia. */
+.info-tema-boton:not([hidden]){display:grid;place-items:center;position:relative;flex-shrink:0;width:42px;height:42px;border:1px solid #704b9e40;border-radius:50%;background:#fffdf9;color:#704b9e;cursor:pointer;transition:transform .28s,background-color .28s,border-color .28s,color .28s}
+.info-tema-boton:active{transform:scale(.9) rotate(12deg)}
+.info-tema-boton svg{grid-area:1/1;width:22px;height:22px;transition:opacity .28s,transform .28s;pointer-events:none}
+.info-tema-luna{opacity:0;transform:rotate(-70deg) scale(.55)}
+[data-tema="oscuro"] .info-tema-sol{opacity:0;transform:rotate(70deg) scale(.55)}
+[data-tema="oscuro"] .info-tema-luna{opacity:1;transform:rotate(0) scale(1)}
+.info-tema-boton:focus-visible{outline:3px solid #b894d5;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.info-tema-boton,.info-tema-boton svg{transition:none!important;animation:none!important}}

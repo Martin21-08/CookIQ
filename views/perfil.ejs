@@ -7,15 +7,34 @@
   <link rel="icon" type="image/png" href="/Img/icono.png">
   <title>Perfil | Mi Cocina</title>
   <link rel="stylesheet" href="/Css/Style.css">
+  <%- include('Partials/temaPrivado') %>
+  <link rel="stylesheet" href="/Css/preferencias.css">
+  <style>
+    .perfil-campos input.campo-invalido { border-color: #b42318; box-shadow: 0 0 0 3px rgba(180, 35, 24, .14); }
+  </style>
 </head>
 <body>
   <div class="inicio-app">
     <%- include('Partials/Sidebar') %> 
 
     <main class="inicio-contenido perfil-contenido">
-        <header class="inicio-encabezado inicio-encabezado-con-plan">
-            <a class="boton-mejorar-plan" href="/suscripciones"><svg class="icono-plan" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 3-5h12l3 5-9 13L3 8Z"/><path d="M3 8h18M6 3l3 5 3 13 3-13 3-5"/></svg><span>Mejorar plan</span></a>
-            <h1>Mi perfil</h1><p>Completa tus datos para personalizar tu experiencia en la cocina.</p>
+        <header class="inicio-encabezado inicio-encabezado-con-plan perfil-encabezado">
+            <div class="perfil-acciones-cabecera">
+                <button type="button" id="abrirAjustesPerfil" class="boton-mejorar-plan" aria-haspopup="dialog" aria-controls="ajustesPerfil" aria-expanded="false" hidden><span aria-hidden="true">⚙</span> Ajustes</button>
+                <a class="boton-mejorar-plan" href="/suscripciones"><svg class="icono-plan" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 3-5h12l3 5-9 13L3 8Z"/><path d="M3 8h18M6 3l3 5 3 13 3-13 3-5"/></svg><span>Mejorar plan</span></a>
+            </div>
+            <div class="perfil-avatar-grupo" id="perfilAvatar" data-correo="<%= typeof user !== 'undefined' && user ? user.correo : '' %>">
+                <div class="perfil-avatar" role="img" aria-label="Avatar del perfil"><span data-avatar-iniciales></span><img data-avatar-imagen hidden alt="Foto de perfil"></div>
+                <details class="perfil-avatar-menu">
+                    <summary title="Cambiar foto de perfil" aria-label="Cambiar foto de perfil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z M14 5l5 5"/></svg></summary>
+                    <div class="perfil-avatar-opciones">
+                        <button type="button" data-avatar-subir><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h5l2-3h4l2 3h5v13H3Z"/><circle cx="12" cy="13" r="4"/></svg> Subir nueva foto</button>
+                        <button type="button" data-avatar-eliminar disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg> Eliminar foto</button>
+                    </div>
+                </details>
+                <input type="file" data-avatar-archivo accept="image/jpeg,image/png,image/webp" hidden aria-label="Seleccionar foto de perfil">
+            </div>
+            <div class="perfil-encabezado-texto"><h1>Mi perfil</h1><p>Completa tus datos para personalizar tu experiencia en la cocina.</p><p>Plan actual: <strong><%= planActual.nombre %></strong></p></div>
         </header>
 
       <%# app.js lee los campos y actualiza el perfil local; este formulario no usa una consulta SQL. %>
@@ -25,26 +44,26 @@
           <h2>Datos personales</h2>
           <div class="perfil-campos">
 
-            <label>Nombre <input id="perfilNombre" name="nombre" type="text" placeholder="Tu nombre"></label>
-            <label>Apellido <input id="perfilApellido" name="apellido" type="text" placeholder="Tu apellido"></label>
-            <label>Correo electrónico <input id="perfilCorreo" name="correo" type="email" placeholder="correo@ejemplo.com"></label>
-            <label>Teléfono <input id="perfilTelefono" name="telefono" type="tel" placeholder="+56 9 1234 5678"></label>
+            <label>Nombre <input id="perfilNombre" name="nombre" type="text" placeholder="Tu nombre" required></label>
+            <label>Apellido <input id="perfilApellido" name="apellido" type="text" placeholder="Tu apellido" required></label>
+            <label>Correo electrónico <input id="perfilCorreo" name="correo" type="email" placeholder="correo@ejemplo.com" required></label>
+            <label>Teléfono <input id="perfilTelefono" name="telefono" type="tel" placeholder="+56 9 1234 5678" required></label>
 
           </div>
+          <p id="perfilErrorValidacion" class="mensaje-error" role="alert" hidden></p>
         </section>
 
         <section class="perfil-seccion">
           <h2>Alergias e intolerancias</h2>
           <p class="perfil-ayuda">Selecciona las opciones que debemos considerar al sugerirte recetas.</p>
-          <button type="button" class="boton-generar" id="abrirPersonalizacionPerfil">Personalizar alergias</button>
 
           <h3 class="perfil-subseccion">Alergias</h3>
 
-            <div class="perfil-opciones" id="opcionesAlergias"></div>
+            <div class="perfil-opciones preferencias-tarjetas" id="opcionesAlergias"></div>
 
             <h3 class="perfil-subseccion">Intolerancias</h3>
 
-            <div class="perfil-opciones" id="opcionesIntolerancias"></div>
+            <div class="perfil-opciones preferencias-tarjetas" id="opcionesIntolerancias"></div>
 
         </section>
 
@@ -55,21 +74,12 @@
         </div>
       </form>
 
-      <div class="modal-inicio" id="modalPersonalizacionPerfil" aria-hidden="true">
-        <form class="modal-panel modal-registro-login" id="formPersonalizacionPerfil">
-          <button class="modal-cerrar" type="button" id="cerrarPersonalizacionPerfil">Cerrar</button>
-          <h2>Personaliza tus alergias</h2>
-          <p>Selecciona lo que debemos considerar al recomendarte recetas.</p>
-          <h3 class="perfil-subseccion">Alergias</h3>
-          <div class="perfil-opciones" id="opcionesAlergiasModal"></div>
-          <h3 class="perfil-subseccion">Intolerancias</h3>
-          <div class="perfil-opciones" id="opcionesIntoleranciasModal"></div>
-          <button class="boton-generar" type="submit">Guardar personalización</button>
-        </form>
-      </div>
     </main>
   </div>
+  <%- include('Partials/ajustesPerfil') %>
+  <script src="/Js/ajustesPerfil.js" defer></script>
   <script src="/Js/app.js"></script>
+<script src="/Js/avatar.js"></script>
   <!-- Mantiene los campos sincronizados con el usuario autenticado en Firebase. -->
   <script type="module" src="/Js/firebase-auth.js"></script>
 </body>

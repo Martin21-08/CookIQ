@@ -56,6 +56,7 @@ CREATE TABLE usuario (
     apellidos VARCHAR(100) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
     telefono VARCHAR(15) UNIQUE,
+    foto_perfil_ruta VARCHAR(255) NULL,
 
     contrasena_hash VARCHAR(255),
     google_id VARCHAR(255) UNIQUE,

@@ -61,7 +61,7 @@ if (botonGoogle) {
             body: JSON.stringify(datos)
         });
         const resultado = await respuesta.json();
-        if (!respuesta.ok) {
+        if (!respuesta.ok || resultado.ok !== true) {
             throw new Error(resultado.error || 'No se pudo completar la solicitud con Google.');
         }
         return resultado;
@@ -99,12 +99,12 @@ if (botonGoogle) {
                 googleId: usuarioFirebasePendiente.uid,
                 idToken: token
             });
-            actualizarPerfilLocal(resultado.usuario);
             usuarioFirebasePendiente = null;
             modalRegistro.classList.remove('abierto');
             modalRegistro.setAttribute('aria-hidden', 'true');
-            alert('Registro completado correctamente.');
-            window.location.assign('/lobby');
+            await signOut(auth);
+            ocultarEspera();
+            await window.CookIQRegistro.abrir(resultado);
         } catch (error) {
             console.error('Error al registrar con Google:', error);
             mostrarAviso(error.message || 'No se pudo completar el registro con Google.');
@@ -169,7 +169,6 @@ if (botonGoogle) {
                 idToken
             });
             actualizarPerfilLocal(respuesta.usuario);
-            alert('Inicio de sesión exitoso.');
             window.location.assign('/lobby');
         } catch (error) {
             console.error('Error al iniciar sesión con Google:', error);

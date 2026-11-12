@@ -38,16 +38,6 @@ router.post(
 
 
 /*
- * Login mediante SMS
- */
-router.post(
-    '/firebase/telefono',
-    validarFirebase,
-    firebaseController.loginTelefono
-);
-
-
-/*
  * Obtener sesión actual
  */
 router.get(
@@ -64,5 +54,10 @@ router.post(
     firebaseController.cerrarSesion
 );
 
+
+router.put(
+    '/firebase/perfil',
+    firebaseController.actualizarPerfil
+);
 
 module.exports = router;

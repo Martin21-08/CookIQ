@@ -1,0 +1,21 @@
+<dialog class="personalizacion-registro" id="personalizacionRegistro" aria-labelledby="tituloPersonalizacionRegistro">
+  <form id="formPreferenciasRegistro">
+    <header class="preferencias-cabecera"><h2 id="tituloPersonalizacionRegistro" tabindex="-1">Personaliza tu alimentación</h2><p>Selecciona tus alergias e intolerancias para que CookIQ pueda recomendarte recetas adecuadas.</p></header>
+    <p class="preferencias-mensaje" id="mensajePreferenciasRegistro" role="status" aria-live="polite"></p>
+    <section id="seleccionPreferenciasRegistro">
+      <div class="preferencias-desplazamiento">
+        <fieldset><legend>Alergias</legend><div class="perfil-opciones preferencias-tarjetas" id="registroAlergias"></div></fieldset>
+        <fieldset><legend>Intolerancias</legend><div class="perfil-opciones preferencias-tarjetas" id="registroIntolerancias"></div></fieldset>
+        <p class="preferencias-ayuda">Puedes continuar sin seleccionar opciones si no tienes restricciones.</p>
+      </div>
+      <footer class="preferencias-acciones"><button type="button" class="boton-cerrar-sesion" id="recargarCatalogosRegistro" hidden>Volver a cargar opciones</button><button type="submit" class="boton-generar" id="confirmarPreferenciasRegistro" disabled>Guardar cambios</button></footer>
+    </section>
+    <section id="confirmacionPreferenciasRegistro" hidden aria-labelledby="tituloConfirmacionPreferencias">
+      <h3 id="tituloConfirmacionPreferencias" tabindex="-1">¿Estás seguro de guardar estas preferencias?</h3>
+      <p>Tus alergias e intolerancias se utilizarán para personalizar las recetas de CookIQ. Podrás modificarlas posteriormente desde tu perfil.</p>
+      <div class="favorito-dialogo-acciones"><button type="button" id="cancelarConfirmacionPreferencias">Cancelar</button><button type="button" class="favorito-dialogo-confirmar" id="guardarPreferenciasRegistro">Sí, guardar</button></div>
+    </section>
+    <p class="preferencias-ayuda">Tu registro pendiente se conserva durante 15 minutos mientras CookIQ siga funcionando. No se creará la cuenta hasta confirmar.</p>
+    <a class="login-link" href="/">Volver a Descubre CookIQ</a>
+  </form>
+</dialog>

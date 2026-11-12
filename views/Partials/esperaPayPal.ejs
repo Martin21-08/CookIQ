@@ -1,0 +1,10 @@
+<dialog id="esperaPayPal" class="paypal-espera" aria-labelledby="tituloEsperaPayPal" aria-describedby="descripcionEsperaPayPal">
+  <img src="/Img/54479.jpg" alt="Logo de CookIQ">
+  <div class="paypal-espera-corona" aria-hidden="true"><%- include('iconoSuscripcion', { nombre: 'corona' }) %></div>
+  <h2 id="tituloEsperaPayPal">¡Estamos verificando tu pago!</h2>
+  <p id="descripcionEsperaPayPal">Estamos esperando la confirmación de PayPal para activar tu plan MasterChef.</p>
+  <span class="paypal-espera-spinner" aria-hidden="true"></span>
+  <p>Esto puede tardar unos momentos. Por favor, espera.</p>
+  <p id="progresoEsperaPayPal" role="status" aria-live="polite">Estamos verificando tu pago con PayPal...</p>
+  <button type="button" class="boton-generar" id="cerrarEsperaPayPal">Seguir en Suscripciones</button>
+</dialog>

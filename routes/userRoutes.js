@@ -7,6 +7,10 @@ const express = require("express");
 const router = express.Router();
 
 const userController = require("../controllers/userController");
+const registroController = require('../controllers/registroController');
+router.get('/registro/pendiente', registroController.estado);
+router.post('/registro/finalizar', registroController.finalizar);
+router.post('/registro/borrador', registroController.borrador);
 
 
 // ================================

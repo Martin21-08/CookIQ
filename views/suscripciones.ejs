@@ -6,6 +6,8 @@
   <link rel="icon" type="image/png" href="/Img/icono.png">
   <title>Suscripciones | CookIQ</title>
   <link rel="stylesheet" href="/Css/Style.css">
+  <link rel="stylesheet" href="/Css/paypalEspera.css">
+  <%- include('Partials/temaPrivado') %>
 </head>
 <body>
   <div class="inicio-app">
@@ -16,43 +18,61 @@
         <p>Elige el plan que mejor acompañe tu cocina.</p>
       </header>
 
-      <p class="suscripciones-intro">Los planes de pago estarán disponibles próximamente. Por ahora, puedes seguir usando CookIQ con el plan Gratis.</p>
+      <p class="suscripciones-intro">Tu plan actual: <strong><%= planActual.nombre %></strong>. Elige cómo quieres cocinar con CookIQ.</p>
+      <% for (const aviso of (typeof avisosSuscripcion !== 'undefined' ? avisosSuscripcion : [])) { %>
+        <p class="suscripcion-aviso" role="alert"><%= aviso %></p>
+      <% } %>
 
       <section class="suscripciones-grid" aria-label="Planes disponibles">
-        <article class="suscripcion-tarjeta <%= typeof user !== 'undefined' && user && user.id_suscripcion === 1 ? 'suscripcion-actual' : '' %>">
-          <% if (typeof user !== 'undefined' && user && user.id_suscripcion === 1) { %>
+        <article class="suscripcion-tarjeta <%= planActual.codigo === 'gratis' ? 'suscripcion-actual' : '' %>">
+          <% if (planActual.codigo === 'gratis') { %>
             <span class="suscripcion-etiqueta">Plan actual</span>
           <% } %>
           <h2>Gratis</h2>
           <p class="suscripcion-precio">$0 <small>CLP</small></p>
-          <p class="suscripcion-descripcion">Accede a CookIQ con el plan gratuito.</p>
-          <button class="boton-generar suscripcion-accion" type="button" <%= typeof user !== 'undefined' && user && user.id_suscripcion === 1 ? 'disabled' : '' %>>Plan Gratis</button>
+          <p>Descubre nuevas ideas para cocinar cada día.</p>
+          <ul class="suscripcion-descripcion">
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'calendario' }) %></span><span>5 generaciones de recetas al día</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'corazon' }) %></span><span>Tus recetas favoritas siempre a mano</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'historial' }) %></span><span>Historial de tus descubrimientos</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'escudo' }) %></span><span>Recetas adaptadas a tus alergias e intolerancias</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'perfil' }) %></span><span>Un perfil a tu estilo</span></li>
+          </ul>
+          <p>Los cupos se renuevan a las 00:00, hora de Chile.</p>
+          <button class="boton-generar suscripcion-accion" type="button" disabled><%= planActual.codigo === 'gratis' ? 'Tu plan actual' : 'Plan Gratis' %></button>
         </article>
 
-        <article class="suscripcion-tarjeta">
-          <h2>Essential</h2>
+        <article class="suscripcion-tarjeta <%= planActual.masterchef ? 'suscripcion-actual' : '' %>">
+          <% if (planActual.masterchef) { %><span class="suscripcion-etiqueta">Plan actual</span><% } %>
+          <h2>MasterChef</h2>
           <p class="suscripcion-precio">$7.990 <small>CLP al mes</small></p>
-          <p class="suscripcion-descripcion">Un plan de pago para ampliar tu experiencia en CookIQ. Sus características se informarán cuando estén definidas.</p>
-          <button class="boton-generar suscripcion-accion" type="button" data-plan-proximo>Próximamente</button>
-        </article>
-
-        <article class="suscripcion-tarjeta">
-          <h2>Premium</h2>
-          <p class="suscripcion-precio">$15.990 <small>CLP al mes</small></p>
-          <p class="suscripcion-descripcion">La opción premium de CookIQ. Sus características se informarán cuando estén definidas.</p>
-          <button class="boton-generar suscripcion-accion" type="button" data-plan-proximo>Próximamente</button>
+          <p>Tu cocina, sin límites. Más recetas, menos complicaciones.</p>
+          <ul class="suscripcion-descripcion">
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'infinito' }) %></span><span>Recetas ilimitadas, inspiración sin fin</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'refrigerador' }) %></span><span>Tu despensa, bajo control</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'chef' }) %></span><span>Aprovecha lo que ya tienes</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'carrito' }) %></span><span>Tus compras, más organizadas</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'lista' }) %></span><span>De la receta a tu lista en un clic</span></li>
+            <li><span class="suscripcion-beneficio-icono"><%- include('Partials/iconoSuscripcion', { nombre: 'verificado' }) %></span><span>Todo lo de Gratis, y mucho más</span></li>
+          </ul>
+          <button class="boton-generar suscripcion-accion" type="button" id="contratarPayPal" aria-describedby="informacionPayPalSandbox" disabled><% if (planActual.masterchef) { %>Tu plan actual<% } else { %><span class="suscripcion-corona"><%- include('Partials/iconoSuscripcion', { nombre: 'corona' }) %></span> Conviértete en el MasterChef de tu cocina<% } %></button>
         </article>
       </section>
+      <p class="suscripcion-informacion-prueba" id="informacionPayPalSandbox"><strong>Prueba PayPal Sandbox: USD $1.00 mensual ficticio.</strong> Sin prueba gratuita ni cargo inicial. No es un cobro real ni una conversión de los $7.990 CLP.</p>
       <p class="suscripcion-aviso" id="avisoSuscripcion" role="status" aria-live="polite"></p>
-      <a class="suscripcion-volver" href="/lobby">Volver a mi cocina</a>
+      <div class="suscripciones-acciones-inferiores">
+        <a class="boton-generar" href="/lobby"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 5-7 7 7 7M5 12h14" /></svg><span>Volver a mi cocina</span></a>
+        <button class="boton-generar" type="button" id="verificarPayPal" disabled><%- include('Partials/iconoSuscripcion', { nombre: 'verificado' }) %><span>Verificar mi contratación PayPal</span></button>
+      </div>
+      <button class="boton-cerrar-sesion" type="button" id="cancelarPayPal" hidden>Cancelar futuras renovaciones PayPal</button>
     </main>
   </div>
-  <script>
-    document.querySelectorAll('[data-plan-proximo]').forEach((boton) => {
-      boton.addEventListener('click', () => {
-        document.getElementById('avisoSuscripcion').textContent = 'La contratación estará disponible próximamente.';
-      });
-    });
-  </script>
+  <% if (typeof success !== 'undefined' && success.length) { %>
+    <p hidden id="mensajeFlashCookIQ"><%= success.join('\n') %></p>
+  <% } %>
+  <script src="/Js/app.js" defer></script>
+  <%- include('Partials/esperaPayPal') %>
+  <script src="/Js/esperaPayPal.js" defer></script>
+  <script src="/Js/paypal.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+<dialog id="bienvenidaMasterChef" class="masterchef-bienvenida" aria-labelledby="tituloBienvenidaMasterChef" aria-describedby="descripcionBienvenidaMasterChef">
+  <button type="button" class="masterchef-bienvenida-cerrar" aria-label="Cerrar bienvenida" autofocus>×</button>
+  <div class="masterchef-bienvenida-corona" aria-hidden="true"><%- include('iconoSuscripcion', { nombre: 'corona' }) %><svg class="masterchef-destellos" viewBox="0 0 100 30" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="m25 3 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/><path class="masterchef-destello-secundario" d="m75 5 2.5 6.5L84 14l-6.5 2.5L75 23l-2.5-6.5L66 14l6.5-2.5Z"/></svg></div>
+  <h2 id="tituloBienvenidaMasterChef">¡Bienvenido a MasterChef!</h2>
+  <p id="descripcionBienvenidaMasterChef">Tu cocina acaba de subir de nivel. Disfruta todos tus beneficios desbloqueados</p>
+  <ul><li>Generaciones sin cuota diaria</li><li>Mi Despensa Totalmente Disponible</li> <li>Organiza tus proximas compras con Mi lista de Compras</li> <li>Usa tus Ingredientes de tu despensa Rapidamente</li> <li>Anota tus Ingredientes Faltantes de las Recetas</ul>
+  <a class="boton-generar" href="/lobby">Comenzar a cocinar</a>
+</dialog>
+<script src="/Js/bienvenidaMasterChef.js" defer></script>

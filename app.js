@@ -7,13 +7,11 @@ const session = require("express-session");
 
 const flash = require("connect-flash");
 
-const { GoogleGenAI } = require("@google/genai");
-
 require("dotenv").config();
 
 console.log(
-    "API KEY de Gemini:",
-    process.env.GEMINI_API_KEY ? "Encontrada" : "No encontrada"
+    "API KEY de OpenAI:",
+    process.env.OPENAI_API_KEY ? "Encontrada" : "No encontrada"
 );
 
 const sessionSecret = process.env.SESSION_SECRET ||
@@ -32,16 +30,14 @@ const recetasRoutes = require("./routes/recetasRoutes");
 const catalogoRoutes = require("./routes/catalogoRoutes");
 const preferenciasRoutes = require("./routes/preferenciasRoutes");
 const historialRoutes = require("./routes/historialRoutes");
+const despensaRoutes = require("./routes/despensaRoutes");
+const listaCompraRoutes = require("./routes/listaCompraRoutes");
+const favoritoRoutes = require("./routes/favoritoRoutes");
+const resenaRoutes = require("./routes/resenaRoutes");
+const avatarRoutes = require("./routes/avatarRoutes");
 
 
 const app = express();
-
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY
-});
-
-
-
 
 // ======================================
 // CONFIGURACIÓN EJS
@@ -160,9 +156,7 @@ app.get("/api/firebase-config", (req, res) => {
     return res.json(firebaseConfig);
 });
 
-app.get("/", (req, res) => {
-    res.redirect("/usuarios/login");
-});
+app.get("/", require('./controllers/informacionController').mostrar);
 
 app.use("/usuarios", userRoutes);
 app.use("/", viewsRoutes);
@@ -170,6 +164,13 @@ app.use("/", recetasRoutes);
 app.use("/catalogos", catalogoRoutes);
 app.use("/preferencias", preferenciasRoutes);
 app.use("/api/historial", historialRoutes);
+app.use("/api/despensa", despensaRoutes);
+app.use("/api/lista-compra", listaCompraRoutes);
+app.use("/api/perfil", avatarRoutes);
+app.use("/api/favoritos", favoritoRoutes);
+app.use("/api/recetas", resenaRoutes);
+// Integración adicional; conserva los parsers, sesiones y rutas anteriores.
+app.use('/api/paypal', require('./routes/paypalRoutes'));
 
 // ======================================
 // Rutas de Firebase

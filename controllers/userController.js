@@ -3,6 +3,21 @@ const crypto = require("crypto");
 
 const userModel = require("../models/userModel");
 const emailService = require("../services/emailService");
+const registroService = require("../services/registroService");
+const { comprobarOrigen } = require("./registroController");
+
+const intentosLoginPorCorreo = new Map();
+const maxIntentosLogin = 5;
+const duracionBloqueoLoginMs = 15 * 60 * 1000;
+const claveIntentosLogin = crypto.randomBytes(32);
+const hashContrasenaInexistente = bcrypt.hashSync("cookiq-credencial-inexistente", 10);
+
+const obtenerClaveIntentosLogin = correo => crypto
+    .createHmac("sha256", claveIntentosLogin)
+    .update(correo)
+    .digest("hex");
+
+const mensajeBloqueoLogin = "Has alcanzado el límite de 5 intentos. El inicio de sesión está bloqueado durante 15 minutos. Usa el enlace ¿Olvidaste tu contraseña? para recuperar el acceso.";
 
 // Traduce fallos de conexión frecuentes a instrucciones útiles para la interfaz.
 const mensajeErrorBaseDatos = error => {
@@ -29,8 +44,18 @@ const userController = {
     // =========================================
 
     mostrarRegistro: (req, res) => {
+        let datosRegistro = {};
+        const datosGuardados = req.flash("datosRegistro");
 
-        res.render("register");
+        if (datosGuardados.length) {
+            try {
+                datosRegistro = JSON.parse(datosGuardados[0]);
+            } catch (error) {
+                datosRegistro = {};
+            }
+        }
+
+        res.render("register", { datosRegistro });
     },
 
 
@@ -41,7 +66,25 @@ const userController = {
     // Lee req.body, valida los datos y pide al modelo que guarde la cuenta.
     register: async (req, res) => {
 
+        const esJson = req.get('accept')?.includes('application/json');
+        const fallarRegistro = (status = 400) => {
+            if (!esJson) return res.redirect('/usuarios/registro');
+            const errores = req.flash('error'); req.flash('datosRegistro');
+            return res.status(status).json({ok:false,error:errores.join(' ') || 'Revisa los datos del registro.'});
+        };
+        const conservarDatosRegistro = () => {
+            const body = req.body || {};
+            req.flash("datosRegistro", JSON.stringify({
+                nombres: String(body.nombres || body.nombre || "").trim(),
+                apellidos: String(body.apellidos || body.apellido || "").trim(),
+                correo: String(body.correo || "").trim(),
+                telefono: String(body.telefono || "").trim(),
+                terminosAceptados: ["Terminos", "on", true].includes(body.Terminos)
+            }));
+        };
+
         try {
+            comprobarOrigen(req);
 
             // 1. Leer y normalizar los datos enviados desde el formulario.
             const nombres = String(req.body.nombres || req.body.nombre || "").trim();
@@ -69,35 +112,39 @@ const userController = {
             // El servidor comprueba la aceptación porque el navegador no debe bloquear el POST:
             // así puede mostrar el mensaje flash si la casilla no está seleccionada.
             if (!terminosAceptados) {
+                conservarDatosRegistro();
                 req.flash("error", "Debes aceptar los términos y condiciones para registrarte.");
-                return res.redirect("/usuarios/registro");
+                return fallarRegistro();
             }
 
             // 2. Validar los campos requeridos antes de consultar la base de datos.
             if (!nombres || !apellidos || !correo || !password) {
                 console.warn("[REGISTRO] Solicitud rechazada: faltan campos obligatorios.");
 
+                conservarDatosRegistro();
                 req.flash(
                     "error",
                     "Debes completar todos los campos obligatorios"
                 );
 
-                return res.redirect("/usuarios/registro");
+                return fallarRegistro();
             }
 
             // Exigir una contraseña de al menos 8 caracteres.
             if (password.length < 8) {
+                conservarDatosRegistro();
                 req.flash(
                     "error",
                     "La contraseña debe tener al menos 8 caracteres."
                 );
-                return res.redirect("/usuarios/registro");
+                return fallarRegistro();
             }
 
             if (telefono && !/^\+569\d{8}$/.test(telefono)) {
                 console.warn("[REGISTRO] Solicitud rechazada: formato de teléfono inválido.");
+                conservarDatosRegistro();
                 req.flash("error", "El teléfono debe tener formato +56 9 1234 5678");
-                return res.redirect("/usuarios/registro");
+                return fallarRegistro();
             }
 
 
@@ -110,12 +157,13 @@ const userController = {
             if (usuarioExiste) {
                 console.warn("[REGISTRO] Solicitud rechazada: el correo ya está registrado.");
 
+                conservarDatosRegistro();
                 req.flash(
                     "error",
                     "El correo ya está registrado"
                 );
 
-                return res.redirect("/usuarios/registro");
+                return fallarRegistro();
             }
 
 
@@ -124,31 +172,17 @@ const userController = {
                 await bcrypt.hash(password, 10);
 
 
-            // 5. Crear la cuenta y conservar el ID devuelto por MySQL.
-            const idUsuario = await userModel.crearUsuario({
-                nombres,
-                apellidos,
-                correo,
-                telefono,
-                contrasena_hash: contrasenaHash
+            // La cuenta se crea solo al confirmar las preferencias.
+            const pendiente = registroService.preparar(req, 'normal', {
+                nombres, apellidos, correo, telefono, contrasena_hash:contrasenaHash
             });
-
-            // 6. Confirmar en consola que la inserción devolvió el ID del usuario.
-            console.info("[REGISTRO] Usuario registrado correctamente.");
-            console.info("[REGISTRO] ID de usuario creado:", idUsuario);
-
-            // 7. Informar al usuario y enviarlo al inicio de sesión.
-            req.flash(
-                "success",
-                "Usuario registrado correctamente"
-            );
-
-
-            // Volver al registro
-            return res.redirect("/usuarios/login");
+            if (esJson) return res.status(202).json(pendiente);
+            return res.redirect('/usuarios/registro?personalizar=1');
 
 
         } catch (error) {
+
+            conservarDatosRegistro();
 
             // Registrar el detalle técnico del error sin incluir los datos enviados por el usuario.
             console.error("[REGISTRO] Error al guardar usuario:", {
@@ -168,7 +202,7 @@ const userController = {
             );
 
 
-            return res.redirect("/usuarios/registro");
+            return fallarRegistro(error.status || (error.code === 'ER_DUP_ENTRY' ? 409 : 503));
         }
     },
 
@@ -198,6 +232,7 @@ const userController = {
                 .trim()
                 .toLowerCase();
             const password = String(req.body.password || req.body["password-login"] || "");
+            const claveIntentos = obtenerClaveIntentosLogin(correo);
 
 
             // Verificar que estén completos
@@ -211,35 +246,43 @@ const userController = {
                 return res.redirect("/usuarios/login");
             }
 
+            const estadoIntentos = intentosLoginPorCorreo.get(claveIntentos);
+            if (estadoIntentos?.bloqueadoHasta > Date.now()) {
+                req.flash("error", mensajeBloqueoLogin);
+                return res.redirect("/usuarios/login");
+            }
+
+            if (estadoIntentos?.bloqueadoHasta) {
+                intentosLoginPorCorreo.delete(claveIntentos);
+            }
 
             // Buscar usuario por correo
             const usuario =
                 await userModel.buscarPorCorreo(correo);
 
-
-            // Si no existe
-            if (!usuario) {
-
-                req.flash(
-                    "error",
-                    "Correo o contraseña incorrectos"
-                );
-
-                return res.redirect("/usuarios/login");
-            }
-
-
-            // Comparar contraseña ingresada
-            // con la contraseña encriptada de MySQL
-            const contraseñaCorrecta =
-                await bcrypt.compare(
-                    password,
-                    usuario.contrasena_hash
-                );
+            // Compara también contra un hash ficticio si la cuenta no tiene contraseña,
+            // manteniendo el mismo mensaje para correos desconocidos y credenciales inválidas.
+            const contraseñaCoincide = await bcrypt.compare(
+                password,
+                usuario?.contrasena_hash || hashContrasenaInexistente
+            );
+            const contraseñaCorrecta = Boolean(usuario?.contrasena_hash) && contraseñaCoincide;
 
 
             // Si la contraseña es incorrecta
             if (!contraseñaCorrecta) {
+                const intentosFallidos = (intentosLoginPorCorreo.get(claveIntentos)?.intentos || 0) + 1;
+
+                if (intentosFallidos >= maxIntentosLogin) {
+                    intentosLoginPorCorreo.set(claveIntentos, {
+                        intentos: intentosFallidos,
+                        bloqueadoHasta: Date.now() + duracionBloqueoLoginMs
+                    });
+                    req.flash("error", mensajeBloqueoLogin);
+                    return res.redirect("/usuarios/login");
+                }
+
+                intentosLoginPorCorreo.set(claveIntentos, { intentos: intentosFallidos });
 
                 req.flash(
                     "error",
@@ -249,6 +292,7 @@ const userController = {
                 return res.redirect("/usuarios/login");
             }
 
+            intentosLoginPorCorreo.delete(claveIntentos);
 
             // Guardar usuario en la sesión
             req.session.usuario = {

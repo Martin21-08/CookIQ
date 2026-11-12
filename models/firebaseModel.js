@@ -57,34 +57,6 @@ async function buscarPorCorreo(correo) {
 }
 
 /**
- * Busca un usuario mediante su teléfono.
- */
-async function buscarPorTelefono(telefono) {
-    const [rows] = await pool.query(
-        `
-        SELECT
-            id_usuario,
-            nombres,
-            apellidos,
-            correo,
-            telefono,
-            google_id,
-            id_suscripcion,
-            tokens_disponibles,
-            activo,
-            creado_en,
-            actualizado_en
-        FROM usuario
-        WHERE telefono = ?
-        LIMIT 1
-        `,
-        [telefono]
-    );
-
-    return rows[0] || null;
-}
-
-/**
  * Vincula una cuenta existente de CookIQ
  * con su Google ID.
  */
@@ -104,8 +76,8 @@ async function vincularGoogleId(idUsuario, googleId) {
 /**
  * Busca un usuario por su ID interno.
  */
-async function buscarPorId(idUsuario) {
-    const [rows] = await pool.query(
+async function buscarPorId(idUsuario, conexion = pool) {
+    const [rows] = await conexion.query(
         `
         SELECT
             id_usuario,
@@ -142,8 +114,8 @@ async function crearUsuarioGoogle({
     correo,
     telefono,
     googleId
-}) {
-    const [resultado] = await pool.query(
+}, conexion = pool) {
+    const [resultado] = await conexion.query(
         `
         INSERT INTO usuario
         (
@@ -164,41 +136,7 @@ async function crearUsuarioGoogle({
         ]
     );
 
-    return buscarPorId(resultado.insertId);
-}
-
-/**
- * Crea un usuario mediante teléfono.
- *
- * Firebase verifica el teléfono.
- * CookIQ solamente almacena el teléfono.
- */
-async function crearUsuarioTelefono({
-    nombres,
-    apellidos,
-    correo,
-    telefono
-}) {
-    const [resultado] = await pool.query(
-        `
-        INSERT INTO usuario
-        (
-            nombres,
-            apellidos,
-            correo,
-            telefono
-        )
-        VALUES (?, ?, ?, ?)
-        `,
-        [
-            nombres,
-            apellidos,
-            correo || null,
-            telefono
-        ]
-    );
-
-    return buscarPorId(resultado.insertId);
+    return buscarPorId(resultado.insertId, conexion);
 }
 
 /**
@@ -235,10 +173,8 @@ async function actualizarPerfil(idUsuario, {
 module.exports = {
     buscarPorGoogleId,
     buscarPorCorreo,
-    buscarPorTelefono,
     vincularGoogleId,
     buscarPorId,
     crearUsuarioGoogle,
-    crearUsuarioTelefono,
     actualizarPerfil
 };

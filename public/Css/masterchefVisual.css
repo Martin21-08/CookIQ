@@ -1,0 +1,32 @@
+/* Presentación premium: el atributo procede del plan efectivo renderizado por EJS. */
+.cookiq-privado{--premium-corona:#7845b0;--premium-detalle:#a56fd0;--premium-destello:#7845b0;--premium-sombra:rgba(120,69,176,.22)}
+.cookiq-privado[data-tema="oscuro"]{--premium-corona:#f3cf85;--premium-detalle:#c89aff;--premium-destello:#fff8ff;--premium-sombra:rgba(255,248,255,.32)}
+.masterchef-saludo-corona{display:inline-block;width:1em;height:1em;vertical-align:-.1em;margin-right:.24em;color:var(--premium-corona);filter:drop-shadow(0 0 2px var(--premium-sombra))}
+.masterchef-saludo-corona svg{display:block;width:100%;height:100%}
+.masterchef-saludo-corona path{stroke-width:1.9;fill:color-mix(in srgb,var(--premium-detalle) 14%,transparent)}
+.masterchef-distintivo svg{color:var(--premium-corona)}
+.masterchef-distintivo{position:absolute;top:148px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid #c9a8ef;border-radius:20px;background:#efe5f8;color:#51356f;font-size:11px;font-weight:800;white-space:nowrap}
+.masterchef-distintivo svg{width:17px;height:17px}
+.inicio-app:has(.inicio-sidebar[data-masterchef="true"]) :is(.buscador-caja,.perfil-seccion,.historial-bloque,.receta-card){border-color:#b99bd5}
+.inicio-sidebar[data-masterchef="true"] .inicio-menu a.activa{box-shadow:inset 0 0 0 1px #d8bdf4,0 3px 12px #704b9e30}
+.masterchef-bienvenida{position:fixed;width:min(430px,calc(100% - 32px));max-height:calc(100dvh - 40px);box-sizing:border-box;overflow:auto;padding:28px;border:1px solid #b99bd5;border-radius:20px;background:var(--cream);color:var(--text);font-family:inherit;text-align:center}
+.masterchef-bienvenida::backdrop{background:#21192b99}
+.masterchef-bienvenida-cerrar{float:right;border:0;border-radius:8px;background:transparent;color:inherit;font-size:25px;cursor:pointer}
+.masterchef-bienvenida-corona{position:relative;width:64px;height:64px;margin:8px auto 24px;color:var(--premium-corona)}
+.masterchef-bienvenida-corona > svg:first-child{width:100%;height:100%}
+.masterchef-bienvenida h2{font-size:24px}.masterchef-bienvenida p{line-height:1.6}.masterchef-bienvenida ul{text-align:left;line-height:1.7;padding-left:20px}
+.masterchef-bienvenida .boton-generar{display:inline-block;text-decoration:none;max-width:100%;box-sizing:border-box;white-space:normal}
+.masterchef-bienvenida[open] .masterchef-bienvenida-corona{animation:masterchef-entrada 1.7s ease-out both}
+.masterchef-destellos{position:absolute;width:100px;height:30px;left:50%;bottom:-22px;margin-left:-50px;color:var(--premium-destello);pointer-events:none;filter:drop-shadow(0 0 3px var(--premium-sombra));opacity:0}
+.masterchef-destello-secundario{stroke:var(--premium-detalle)}
+.cookiq-privado[data-tema="oscuro"] .masterchef-destello-secundario{stroke:#ddbbff}
+.masterchef-bienvenida[open] .masterchef-destellos{animation:masterchef-destellos 1.7s ease-out both}
+@keyframes masterchef-destellos{0%{opacity:0;transform:scale(.8)}30%{opacity:1;transform:scale(1.08)}65%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(.95)}}
+.masterchef-bienvenida[open] :is(h2,p,ul){animation:masterchef-entrada 1.7s ease-out both}
+@keyframes masterchef-entrada{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cookiq-privado[data-tema="oscuro"] :is(.masterchef-distintivo,.masterchef-bienvenida){background:var(--tema-panel);color:var(--text);border-color:var(--tema-acento)}
+.cookiq-privado[data-tema="oscuro"] .masterchef-bienvenida-corona{color:var(--premium-corona)}
+@media(max-width:850px){.masterchef-distintivo{top:88px;padding:3px 5px}.masterchef-distintivo span{display:none}}
+.cookiq-privado[data-movimiento-reducido="true"] .masterchef-bienvenida *{animation:none!important}
+.cookiq-privado[data-movimiento-reducido="true"] .masterchef-destellos{display:none}
+@media(prefers-reduced-motion:reduce){.masterchef-bienvenida *{animation:none!important}.masterchef-destellos{display:none!important}}

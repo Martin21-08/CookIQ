@@ -1,5 +1,5 @@
 
-async function buscarCandidatas(nombreReceta) {
+async function buscarCandidatas(nombreReceta, signal) {
     const accessKey = process.env.UNSPLASH_ACCESS_KEY;
 
     if (!accessKey || !nombreReceta?.trim()) {
@@ -13,13 +13,16 @@ async function buscarCandidatas(nombreReceta) {
             orientation: "landscape"
         });
 
+        const senalSolicitud = signal
+            ? AbortSignal.any([signal, AbortSignal.timeout(8000)])
+            : AbortSignal.timeout(8000);
         const respuesta = await fetch(
             `https://api.unsplash.com/search/photos?${parametros}`,
             {
                 headers: {
                     Authorization: `Client-ID ${accessKey}`
                 },
-                signal: AbortSignal.timeout(8000)
+                signal: senalSolicitud
             }
         );
 
@@ -34,16 +37,25 @@ async function buscarCandidatas(nombreReceta) {
         const datos = await respuesta.json();
         return datos.results || [];
     } catch (error) {
+        if (signal?.aborted) {
+            throw error;
+        }
         console.error("Error buscando imagen:", error.message);
         return [];
     }
 }
 
-async function agregarImagenes(recetas) {
+async function agregarImagenes(recetas, signal) {
     // Lanza todas las búsquedas al mismo tiempo.
     const candidatasPorReceta = await Promise.all(
-        recetas.map(receta => buscarCandidatas(receta.nombre))
+        recetas.map(receta => buscarCandidatas(receta.nombre, signal))
     );
+
+    if (signal?.aborted) {
+        const error = new Error('La solicitud fue cancelada.');
+        error.name = 'AbortError';
+        throw error;
+    }
 
     // Evita reutilizar la misma fotografía entre recetas,
     // siempre que Unsplash ofrezca alternativas.

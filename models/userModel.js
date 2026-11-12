@@ -17,11 +17,11 @@ const userModel = {
         apellidos, 
         correo, 
         telefono, 
-        contrasena_hash }) => {
+        contrasena_hash }, conexion = db) => {
         // Los signos ? se rellenan con los valores de forma segura.
         // Mantiene los valores separados del SQL para que mysql2 ejecute una consulta parametrizada.
         const sql = 'INSERT INTO usuario (nombres, apellidos, correo, telefono, contrasena_hash) VALUES (?, ?, ?, ?, ?)';
-        const [result] = await db.query(sql, [
+        const [result] = await conexion.query(sql, [
             nombres, 
             apellidos, 
             correo, 

@@ -1,4 +1,7 @@
 const pool = require('../config/db'); // Ajusta la ruta si es necesario para llegar a tu db.js
+const ingredienteModel = require('./ingredienteModel');
+const solicitudGeneracionModel = require('./solicitudGeneracionModel');
+const { normalizarRecetaCulinaria, identidadCompuestaAmbigua } = require('../services/ingredientesCulinariosService');
 
 const normalizarTexto = valor => String(valor || '')
   .normalize('NFD')
@@ -71,13 +74,24 @@ const RecetaModel = {
     return resultado.affectedRows > 0;
   },
 
-  // Persiste recetas de Gemini y todas sus relaciones en el esquema actual.
-  guardarGeneradas: async (recetas, { idUsuario = null, dificultadSolicitada, minutosMaximos, porciones }) => {
+  // Persiste recetas generadas por OpenAI y todas sus relaciones en el esquema actual.
+  guardarGeneradas: async (recetas, { idUsuario = null, dificultadSolicitada, minutosMaximos, porciones, signal, idSolicitud = null }) => {
+    const comprobarCancelacion = () => {
+      if (!signal?.aborted) return;
+      const error = new Error('La solicitud fue cancelada.');
+      error.name = 'AbortError';
+      throw error;
+    };
+    comprobarCancelacion();
     const connection = await pool.getConnection();
     let transaccionIniciada = false;
+    const idsRecetas = [];
     try {
+      comprobarCancelacion();
+      if (idSolicitud !== null) await connection.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
       await connection.beginTransaction();
       transaccionIniciada = true;
+      if (idSolicitud !== null) await solicitudGeneracionModel.prepararConfirmacion(connection, idSolicitud, idUsuario);
 
       if (idUsuario !== null && (!Number.isInteger(idUsuario) || idUsuario < 1)) {
         throw new Error('La sesión contiene un identificador de usuario inválido.');
@@ -94,8 +108,9 @@ const RecetaModel = {
       const [unidades] = await connection.execute(
         'SELECT id_unidad, nombre, abreviatura, familia FROM unidad_medida'
       );
-
-      for (const receta of recetas) {
+      for (const original of recetas) {
+        const receta = normalizarRecetaCulinaria(original);
+        comprobarCancelacion();
         const [dificultadesReceta] = await connection.execute(
           'SELECT id_dificultad FROM dificultad WHERE nombre = ? LIMIT 1',
           [receta.dificultad]
@@ -118,6 +133,7 @@ const RecetaModel = {
           ]
         );
         const idReceta = resultadoReceta.insertId;
+        idsRecetas.push(idReceta);
 
         let idGeneracion = null;
         if (idUsuario !== null) {
@@ -125,7 +141,7 @@ const RecetaModel = {
             `INSERT INTO generacion_ia
               (id_usuario, id_receta, tipo, modelo, dificultad_solicitada,
                minutos_maximos_solicitados, porciones_solicitadas, estado)
-             VALUES (?, ?, 'generada_nueva', 'gemini-3.8-flash', ?, ?, ?, 'exito')`,
+             VALUES (?, ?, 'generada_nueva', 'gpt-4o-mini', ?, ?, ?, 'exito')`,
             [idUsuario, idReceta, dificultadSolicitadaId, minutosMaximos, porciones]
           );
           idGeneracion = resultadoGeneracion.insertId;
@@ -140,20 +156,44 @@ const RecetaModel = {
 
         const ingredientesPorId = new Map();
         for (const ingrediente of receta.ingredientes) {
-          const nombre = String(ingrediente.nombre || '').trim();
+          const nombre = String(ingrediente.nombre || '').trim().replace(/\s+/g, ' ');
           if (!nombre) throw new Error('Una receta contiene un ingrediente sin nombre.');
           const unidad = buscarUnidad(unidades, ingrediente.unidad);
-          const familia = unidad?.familia || (/(ml|litro|taza|cucharad|cdta|mililitro)/i.test(ingrediente.unidad) ? 'volumen' : 'unidad');
-          const [resultadoIngrediente] = await connection.execute(
-            `INSERT INTO ingrediente (nombre, familia_unidad, creado_por_ia, estado, activo)
-             VALUES (?, ?, 1, 'pendiente', 1)
-             ON DUPLICATE KEY UPDATE id_ingrediente = LAST_INSERT_ID(id_ingrediente)`,
-            [nombre, familia]
-          );
-          const idIngrediente = resultadoIngrediente.insertId;
+          const cualitativo = ingrediente.cantidad === null && ingrediente.unidad === null
+            && typeof ingrediente.indicacion === 'string' && ingrediente.indicacion.trim();
+          if (ingrediente.indicacion != null && (typeof ingrediente.indicacion !== 'string' || ingrediente.indicacion.length > 255)) {
+            throw new Error('La indicación culinaria debe tener como máximo 255 caracteres.');
+          }
+          if (!cualitativo && (!unidad || !Number.isFinite(Number(ingrediente.cantidad)) || Number(ingrediente.cantidad) <= 0)) {
+            throw Object.assign(new Error('La unidad generada no existe en el catálogo de medidas.'), {
+              code: 'INGREDIENT_UNIT_UNKNOWN', appCode: 'INGREDIENT_CLASSIFICATION_FAILED',
+              ingrediente: nombre, unidad: ingrediente.unidad, tipoAlimento: ingrediente.tipoAlimento
+            });
+          }
+          const familia = cualitativo ? null : unidad.familia;
+          let ingredienteCatalogo;
+          try {
+            if (identidadCompuestaAmbigua(nombre) && !await ingredienteModel.buscarManualPorNombre(connection, nombre)) {
+              throw Object.assign(new Error('No se pudo identificar la expresión culinaria sin ambigüedad.'), { code: 'INGREDIENT_NAME_AMBIGUOUS' });
+            }
+            ingredienteCatalogo = await ingredienteModel.resolverOCrearIATransaccional(connection, {
+              nombre,
+              familia,
+              tipoAlimento: ingrediente.tipoAlimento,
+              conservarMedidaReceta: true
+            });
+          } catch (error) {
+            if (!error.appCode) error.appCode = 'INGREDIENT_CATALOG_INSERT_FAILED';
+            error.ingrediente = nombre;
+            error.tipoAlimento = ingrediente.tipoAlimento;
+            error.unidad = ingrediente.unidad;
+            throw error;
+          }
+          const idIngrediente = ingredienteCatalogo.id_ingrediente;
           const dato = {
-            cantidad: Number(ingrediente.cantidad),
+            cantidad: cualitativo ? null : Number(ingrediente.cantidad),
             unidad,
+            indicacion: ingrediente.indicacion || null,
             unidadOriginal: String(ingrediente.unidad || '').trim()
           };
           const grupo = ingredientesPorId.get(idIngrediente) || [];
@@ -163,11 +203,13 @@ const RecetaModel = {
 
         for (const [idIngrediente, grupo] of ingredientesPorId) {
           const unidadUnica = grupo[0].unidad;
-          const mismaUnidad = Boolean(unidadUnica) && grupo.every(dato => dato.unidad?.id_unidad === unidadUnica.id_unidad);
+          const mismaUnidad = Boolean(unidadUnica) && grupo.every(dato => dato.cantidad !== null && dato.unidad?.id_unidad === unidadUnica.id_unidad);
           const cantidad = mismaUnidad ? grupo.reduce((total, dato) => total + dato.cantidad, 0) : null;
-          const indicacion = mismaUnidad ? null : grupo
-            .map(dato => `${dato.cantidad} ${dato.unidadOriginal}`.trim())
-            .join('; ');
+          const indicacion = grupo.map(dato => [
+            !mismaUnidad && dato.cantidad !== null ? `${dato.cantidad} ${dato.unidadOriginal}`.trim() : '',
+            dato.indicacion
+          ].filter(Boolean).join(' ')).filter(Boolean).join('; ') || null;
+          if (indicacion && indicacion.length > 255) throw new Error('Las indicaciones culinarias combinadas superan 255 caracteres.');
 
           await connection.execute(
             `INSERT INTO receta_ingrediente (id_receta, id_ingrediente, cantidad, id_unidad, indicacion)
@@ -185,8 +227,16 @@ const RecetaModel = {
         }
       }
 
+      // No confirmes recetas si la petición se canceló durante la transacción.
+      comprobarCancelacion();
+      if (idSolicitud !== null) {
+        const contexto = await solicitudGeneracionModel.prepararConfirmacion(connection, idSolicitud, idUsuario);
+        await solicitudGeneracionModel.confirmar(connection, idSolicitud, idUsuario, idsRecetas, contexto);
+        comprobarCancelacion();
+      }
       await connection.commit();
       transaccionIniciada = false;
+      return idsRecetas;
     } catch (error) {
       if (transaccionIniciada) {
         try {

@@ -1,0 +1,32 @@
+/* Presentación compartida solo por las opciones alimentarias de Registro y Perfil. */
+.perfil-opciones.preferencias-tarjetas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.perfil-opciones.preferencias-tarjetas label{display:flex;align-items:center;gap:10px;min-width:0;margin:0;padding:14px;border:1px solid #d8c8e2;border-radius:12px;background:#fffaf4;color:#41372f;font:700 14px 'Nunito',sans-serif;line-height:1.45;overflow-wrap:anywhere;cursor:pointer;transition:background-color .2s,border-color .2s,box-shadow .2s}
+.perfil-opciones.preferencias-tarjetas input{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:#704b9e;cursor:pointer}
+.perfil-opciones.preferencias-tarjetas label:hover{border-color:#a785c6}
+.perfil-opciones.preferencias-tarjetas label:has(input:checked){background:#f0e9f7;border-color:#704b9e;box-shadow:0 0 0 1px #704b9e}
+.perfil-opciones.preferencias-tarjetas label:focus-within{outline:3px solid #b894d5;outline-offset:2px}
+.personalizacion-registro{width:min(680px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid #d8c8e2;border-radius:20px;background:#fffaf4;color:#41372f;font:400 15px 'Nunito',Arial,sans-serif;box-shadow:0 20px 50px #0004;overflow:auto}
+.personalizacion-registro::backdrop{background:#21192b99}
+.personalizacion-registro>form{display:flex;flex-direction:column;max-height:calc(100dvh - 84px);min-height:0}
+.preferencias-cabecera,.preferencias-acciones{flex-shrink:0}
+#seleccionPreferenciasRegistro:not([hidden]){display:flex;flex-direction:column;min-height:0;flex:1}
+.personalizacion-registro[open]{animation:preferencias-aparecer .28s ease-out}
+.personalizacion-registro :is(h2,h3){margin:0 0 12px}.personalizacion-registro p{line-height:1.55}
+.preferencias-cabecera p{color:#715c4f}.preferencias-desplazamiento{max-height:45dvh;min-height:0;flex:1;overflow:auto;padding:4px 6px}
+.preferencias-desplazamiento fieldset{border:0;margin:0 0 24px;padding:0}.preferencias-desplazamiento legend{font-weight:800;font-size:18px;margin-bottom:14px}
+.preferencias-acciones{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:12px;padding:16px 0 8px;background:inherit}
+.preferencias-ayuda{font-size:12px;color:#715c4f}.preferencias-mensaje{color:#704b9e;min-height:1.5em}.preferencias-mensaje[role="alert"]{color:#a32929}
+#confirmacionPreferenciasRegistro:not([hidden]){animation:preferencias-aparecer .2s ease-out}
+.personalizacion-registro [hidden]{display:none!important}
+html[data-tema="oscuro"] .personalizacion-registro{color-scheme:dark;background:#2b2137;color:#f5effa;border-color:#51405e}
+html[data-tema="oscuro"] .perfil-opciones.preferencias-tarjetas label{background:#221a2d;color:#f5effa;border-color:#51405e}
+html[data-tema="oscuro"] .perfil-opciones.preferencias-tarjetas label:has(input:checked){background:#372843;border-color:#c9a8ef;box-shadow:0 0 0 1px #c9a8ef}
+html[data-tema="oscuro"] .personalizacion-registro :is(.preferencias-cabecera p,.preferencias-ayuda){color:#c8b9d3}
+html[data-tema="oscuro"] .personalizacion-registro .preferencias-mensaje{color:#c9a8ef}html[data-tema="oscuro"] .personalizacion-registro .preferencias-mensaje[role="alert"]{color:#ffc4c0}
+html[data-tema="oscuro"] .personalizacion-registro .login-link{color:#c9a8ef}
+html[data-tema="oscuro"] .personalizacion-registro .favorito-dialogo-acciones button{background:#372843;color:#f5effa;border-color:#51405e}
+html[data-tema="oscuro"] .personalizacion-registro .favorito-dialogo-acciones .favorito-dialogo-confirmar{background:#704b9e;color:white}
+@keyframes preferencias-aparecer{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:540px){.perfil-opciones.preferencias-tarjetas{grid-template-columns:1fr}.personalizacion-registro{padding:20px}.preferencias-desplazamiento{max-height:40dvh}}
+@media(max-height:480px){.personalizacion-registro>form{max-height:none}}
+@media(prefers-reduced-motion:reduce){.personalizacion-registro[open],#confirmacionPreferenciasRegistro:not([hidden]){animation:none}.perfil-opciones.preferencias-tarjetas label{transition:none}}

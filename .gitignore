@@ -2,3 +2,11 @@ node_modules
 *.log
 sql
 .gitignore
+.env
+storage/avatars/
+!sql/
+sql/*
+!sql/migrations/
+sql/migrations/*
+!sql/migrations/20261027_foto_perfil_usuario.sql
+.env

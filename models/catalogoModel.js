@@ -2,9 +2,9 @@
 const pool = require('../config/db');
 
 // Obtiene todas las alergias que están activas en el catálogo.
-const obtenerAlergias = async () => {
+const obtenerAlergias = async (conexion = pool) => {
 
-    const [filas] = await pool.query(`
+    const [filas] = await conexion.query(`
         SELECT 
             id_alergia,
             nombre,
@@ -18,9 +18,9 @@ const obtenerAlergias = async () => {
 };
 
 // Obtiene todas las intolerancias que están activas en el catálogo.
-const obtenerIntolerancias = async () => {
+const obtenerIntolerancias = async (conexion = pool) => {
 
-    const [filas] = await pool.query(`
+    const [filas] = await conexion.query(`
         SELECT 
             id_intolerancia,
             nombre,

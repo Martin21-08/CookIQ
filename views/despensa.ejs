@@ -1,4 +1,4 @@
-<%# Pantalla para agregar ingredientes y manejar la despensa y la lista de compras local. %>
+<%# Pantalla para agregar ingredientes y manejar la despensa y la lista de compras de MySQL. %>
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -7,6 +7,7 @@
         <link rel="icon" type="image/png" href="/Img/icono.png">
         <title>Despensa | Mi Cocina</title>
         <link rel="stylesheet" href="/Css/Style.css">
+        <%- include('Partials/temaPrivado') %>
     </head>
 <body>
     <div class="inicio-app">
@@ -19,30 +20,74 @@
     </header><section class="historial-bloque">
         
         <h2>Ingredientes disponibles</h2>
-        <form action="/api/datos" method="POST" class="agregar-linea" id="formDespensa">
-            <input id="nuevoIngrediente" name="ingrediente" placeholder="Ej: arroz, tomate, pollo" autocomplete="off">
+        <form action="/api/despensa" method="POST" class="agregar-linea despensa-form-grid" id="formDespensa">
+            <label>Ingrediente
+                <input id="nuevoIngrediente" name="nombre" placeholder="Ej: arroz" autocomplete="off" required maxlength="150">
+            </label>
+            <label>Cantidad
+                <input id="cantidadDespensa" name="cantidad" type="number" min="0.001" max="9999999.999" step="0.001" placeholder="Ej: 500" required>
+            </label>
+            <label>Unidad
+                <select id="unidadDespensa" name="id_unidad" required>
+                    <option value="">Cargando unidades…</option>
+                </select>
+            </label>
             <div class="acciones-despensa">
                 <button class="boton-generar" id="agregarIngredienteDespensa" type="submit">Agregar ingrediente</button>
                 <button class="boton-generar" id="limpiarDespensa" type="button">Limpiar despensa</button>
             </div>
         </form>
+
+        <p id="mensajeDespensa" role="status" aria-live="polite"></p>
         
         <div class="sugerencias" id="sugerenciasDespensa"></div>
         
         <div class="ingredientes-elegidos" id="listaDespensa"></div>
     
     </section><section class="historial-bloque">
-        <h2>Lista de compras</h2>
-        
-        <div class="historial-lista" id="listaCompras"></div>
-        
+        <h2>Mi lista de compras</h2>
+        <form id="formListaCompras" class="agregar-linea compra-form-grid" novalidate>
+            <label>Ingrediente<input id="nombreCompra" type="text" maxlength="150" placeholder="Ej: papas" autocomplete="off" required></label>
+            <label>Cantidad<input id="cantidadCompra" type="number" min="0.001" max="9999999.999" step="0.001" placeholder="Ej: 2" required></label>
+            <label>Unidad<select id="unidadCompra" required><option value="">Cargando unidades...</option></select></label>
+            <button class="boton-generar" type="submit">Agregar a la lista</button>
+        </form>
+        <p id="mensajeListaCompras" role="status" aria-live="polite"></p>
+        <div class="historial-lista" id="listaComprasMysql" aria-live="polite"><p class="sin-resultados">Cargando lista de compras...</p></div>
         <div class="perfil-acciones">
-            <button class="boton-cerrar-sesion" id="limpiarCompras">Limpiar lista de compras</button>
-            <button class="boton-generar" id="completarCompras">Lista completada</button>
+            <button type="button" class="boton-cerrar-sesion" id="limpiarCompras" disabled>Limpiar lista</button>
+            <button type="button" id="importarCompras" hidden disabled>Importar respaldo local</button>
         </div>
+        <section class="compras-supermercados" aria-labelledby="tituloSupermercados">
+            <h3 id="tituloSupermercados">¿Dónde comprar?</h3>
+            <p class="compras-supermercados-descripcion">Encuentra tus ingredientes en supermercados</p>
+            <div class="compras-supermercados-grid">
+                <a class="compras-supermercado" href="https://super.lider.cl/" target="_blank" rel="noopener noreferrer" aria-label="Visitar supermercado Líder (se abre en una pestaña nueva)">
+                    <span class="compras-supermercado-icono compras-supermercado-logo compras-supermercado-logo-blanco" aria-hidden="true"><img src="/Img/supermercados/lider.svg" alt="" width="88" height="36" loading="lazy" decoding="async"></span>
+                    <span class="compras-supermercado-texto"><strong>Líder</strong><small>Visitar supermercado</small></span>
+                    <svg class="compras-supermercado-externo" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>
+                </a>
+                <a class="compras-supermercado" href="https://www.santaisabel.cl/" target="_blank" rel="noopener noreferrer" aria-label="Visitar supermercado Santa Isabel (se abre en una pestaña nueva)">
+                    <span class="compras-supermercado-icono compras-supermercado-logo compras-supermercado-logo-blanco" aria-hidden="true"><img src="/Img/supermercados/santa-isabel.svg" alt="" width="88" height="36" loading="lazy" decoding="async"></span>
+                    <span class="compras-supermercado-texto"><strong>Santa Isabel</strong><small>Visitar supermercado</small></span>
+                    <svg class="compras-supermercado-externo" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>
+                </a>
+                <a class="compras-supermercado" href="https://www.jumbo.cl/" target="_blank" rel="noopener noreferrer" aria-label="Visitar supermercado Jumbo (se abre en una pestaña nueva)">
+                    <span class="compras-supermercado-icono compras-supermercado-logo" aria-hidden="true"><img src="/Img/supermercados/jumbo.svg" alt="" width="88" height="36" loading="lazy" decoding="async"></span>
+                    <span class="compras-supermercado-texto"><strong>Jumbo</strong><small>Visitar supermercado</small></span>
+                    <svg class="compras-supermercado-externo" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>
+                </a>
+                <a class="compras-supermercado" href="https://www.super10.cl/" target="_blank" rel="noopener noreferrer" aria-label="Visitar supermercado Super 10 (se abre en una pestaña nueva)">
+                    <span class="compras-supermercado-icono compras-supermercado-logo" aria-hidden="true"><img src="/Img/supermercados/super10.png" alt="" width="88" height="36" loading="lazy" decoding="async"></span>
+                    <span class="compras-supermercado-texto"><strong>Super 10</strong><small>Visitar supermercado</small></span>
+                    <svg class="compras-supermercado-externo" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>
+                </a>
+            </div>
+        </section>
     </section>
 </main>
 </div>
 <script src="/Js/app.js"></script>
+<script src="/Js/listaCompras.js"></script>
 </body>
 </html>

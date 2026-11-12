@@ -1,4 +1,4 @@
-﻿<%# Pantalla de acceso: correo y contraseña van a Express; Google y SMS usan Firebase. %>
+﻿<%# Pantalla de acceso: correo y contraseña van a Express; Google usa Firebase. %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +9,8 @@
   <title>Iniciar sesión</title>
 </head>
 <body>
-  <main class="modal-fondo">  
+  <main class="modal-fondo login-con-volver">
+    <a href="/" class="btn-login volver-descubre">← Volver a Descubre CookIQ</a>
     <%# Este formulario envía sus campos al controlador de usuarios para validarlos en MySQL. %>
     <form action="/usuarios/login" method="POST" class="modal-caja" id="formLogin">
       <div class="icono-cocina">
@@ -37,29 +38,8 @@
       <!-- Capa visual de CookIQ que acompaña la ventana externa de Google. -->
     <%- include('Partials/avisoGoogle') %>
 
-      <button class="btn-login" type="button" id="iniciarPorSms">Iniciar sesión por SMS</button>
-      <input type="tel" id="telefonoLogin" placeholder="Teléfono (+56 9 1234 5678)" aria-label="Teléfono para iniciar sesión" autocomplete="tel" hidden>
-      <input type="text" id="codigoSMS" placeholder="Código recibido por SMS" aria-label="Código recibido por SMS" inputmode="numeric" autocomplete="one-time-code" hidden>
-      <div id="recaptcha-container"></div>
-      
-
       <a href="/usuarios/registro" class="registrar-link">¿No tienes cuenta? Regístrate</a>
     </form>
-    <!-- Registro provisional para números que todavía no tienen una cuenta. -->
-    <section class="modal-inicio" id="modalRegistroPerfil" aria-hidden="true">
-      <form class="modal-panel modal-registro-login" id="formRegistroPerfil">
-        <button class="modal-cerrar" type="button" id="cerrarRegistroPerfil">Cerrar</button>
-        <h2>Completa tu perfil</h2>
-        <p>Este número aún no tiene una cuenta. Guarda tus datos para entrar a la cocina.</p>
-        <div class="perfil-campos">
-          <label>Nombre <input id="registroPerfilNombre" name="nombre" type="text" required></label>
-          <label>Apellido <input name="apellido" type="text" required></label>
-          <label>Correo electrónico <input name="correo" type="email" required></label>
-          <label>Teléfono <input id="smsTelefono" name="telefono" type="tel" required readonly></label>
-        </div>
-        <button class="boton-generar" type="submit">Guardar y entrar a la cocina</button>
-      </form>
-    </section>
 
     <!-- Personalización común para cualquier método de inicio de sesión. -->
     <section class="modal-inicio" id="modalPersonalizacion" aria-hidden="true">

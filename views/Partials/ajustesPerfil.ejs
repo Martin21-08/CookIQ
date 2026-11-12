@@ -1,0 +1,46 @@
+<dialog id="ajustesPerfil" class="ajustes-perfil" aria-labelledby="tituloAjustesPerfil">
+  <header class="ajustes-perfil-cabecera">
+    <h2 id="tituloAjustesPerfil"><span aria-hidden="true">⚙</span> Ajustes</h2>
+    <button type="button" class="modal-cerrar" data-cerrar-ajustes aria-label="Cerrar Ajustes" autofocus>×</button>
+  </header>
+  <section class="ajustes-perfil-seccion" aria-labelledby="tituloApariencia">
+    <h3 id="tituloApariencia">Apariencia</h3>
+    <p>Personaliza cómo se ve CookIQ.</p>
+    <div class="ajustes-perfil-apariencia">
+      <span>Modo oscuro</span>
+      <button class="info-tema-boton" type="button" data-cookiq-tema aria-label="Activar modo oscuro" aria-pressed="false" title="Activar modo oscuro" hidden>
+        <svg class="info-tema-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="info-tema-luna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg>
+      </button>
+    </div>
+    <label class="ajustes-perfil-apariencia ajustes-movimiento">
+      <span>Reducir animaciones<small>Disminuye los efectos de movimiento de la interfaz</small></span>
+      <input type="checkbox" role="switch" id="reducirAnimaciones">
+    </label>
+  </section>
+  <section class="ajustes-perfil-seccion" aria-labelledby="tituloSeguridadAjustes">
+    <h3 id="tituloSeguridadAjustes"><span aria-hidden="true">♧</span> Privacidad y seguridad</h3>
+    <p>Consulta las opciones de seguridad de tu cuenta.</p>
+    <p>Si accedes con Google, administra tu contraseña desde tu cuenta de Google. Si utilizas correo y contraseña, puedes usar la opción de recuperación del inicio de sesión cuando lo necesites. No compartas tus credenciales.</p>
+  </section>
+  <section class="ajustes-perfil-seccion" aria-labelledby="tituloAcercaAjustes">
+    <h3 id="tituloAcercaAjustes"><span aria-hidden="true">ⓘ</span> Acerca de CookIQ</h3>
+    <details class="ajustes-acerca">
+      <summary>Conoce CookIQ</summary>
+      <h4>CookIQ</h4>
+      <p>CookIQ es una plataforma de recetas con inteligencia artificial que te ayuda a descubrir nuevas ideas para cocinar según tus ingredientes y preferencias alimentarias.</p>
+      <h4>Nuestro equipo</h4>
+      <ul><li>Amador Pizarro.</li><li>Renato Inostroza.</li><li>Andrés Salazar.</li><li>Martin Espinoza.</li></ul>
+      <h4>Contacto oficial</h4>
+      <ul>
+        <li><a href="mailto:CookIQ.oficial@gmail.com">CookIQ.oficial@gmail.com</a></li>
+        <li><a href="https://www.instagram.com/cookiq.of/" target="_blank" rel="noopener noreferrer">@cookiq.of</a></li>
+        <li><a href="tel:+56958808563">+56 9 5880 8563</a></li>
+      </ul>
+    </details>
+  </section>
+  <section class="ajustes-perfil-seccion" aria-labelledby="tituloSesionAjustes">
+    <h3 id="tituloSesionAjustes">Sesión</h3>
+    <button type="button" class="boton-cerrar-sesion" id="cerrarSesionAjustes"><span aria-hidden="true">↪</span> Cerrar sesión</button>
+  </section>
+</dialog>

@@ -1,4 +1,4 @@
-<%# Lugar donde app.js muestra las recetas favoritas guardadas en el navegador. %>
+<%# app.js carga desde el backend los favoritos del usuario autenticado. %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="/Img/icono.png">
   <title>Favoritos | Mi Cocina</title>
   <link rel="stylesheet" href="/Css/Style.css">
+  <%- include('Partials/temaPrivado') %>
 </head>
 <body>
   <div class="inicio-app">
@@ -16,6 +17,10 @@
       <section class="recetas-grid" id="listaFavoritos"></section>
     </main>
   </div>
+  <div class="modal-inicio" id="modalReceta">
+    <section class="modal-panel" id="detalleReceta"></section>
+  </div>
+  <script src="/Js/resenas.js"></script>
   <script src="/Js/app.js"></script>
 </body>
 </html>

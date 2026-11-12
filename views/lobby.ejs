@@ -7,42 +7,47 @@
   <link rel="icon" type="image/png" href="/Img/icono.png">
   <title>Cocinar | Mi cocina</title>
   <link rel="stylesheet" href="/Css/Style.css">
+  <%- include('Partials/temaPrivado') %>
 </head>
 <body>
+  <div id="mensajeFlashCookIQ" hidden><%= (success || []).join(' ') %></div>
   <div class="inicio-app">
   <%- include('Partials/Sidebar') %>  
     <main class="inicio-contenido">
       <header class="inicio-encabezado inicio-encabezado-con-plan">
         <a class="boton-mejorar-plan" href="/suscripciones"><svg class="icono-plan" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 3-5h12l3 5-9 13L3 8Z"/><path d="M3 8h18M6 3l3 5 3 13 3-13 3-5"/></svg><span>Mejorar plan</span></a>
-        <h1>¿Qué deseas cocinar hoy?</h1>
+        <h1><% if (planActual.masterchef) { %><span class="masterchef-saludo-corona" aria-hidden="true"><%- include('Partials/iconoSuscripcion', { nombre: 'corona' }) %></span><% } %><% if (user && user.nombres && user.nombres.trim()) { %>¡Hola, <%= user.nombres %>! ¿Qué deseas cocinar hoy?<% } else { %>¿Qué deseas cocinar hoy?<% } %></h1>
         <p>Elige tus ingredientes y obtén ideas ricas para preparar.</p>
       </header>
 
       <%# El JavaScript reúne los ingredientes elegidos y actualiza la lista de recetas. %>
       <form action="/api/datos" method="POST" class="buscador-caja" id="formBusqueda">
         <div class="buscador-linea">
-          <input id="buscarIngrediente" name="ingrediente" type="text" placeholder="Busca un ingrediente, por ejemplo: tomate" autocomplete="off">
+          <input id="buscarIngrediente" name="ingrediente" type="text" placeholder="Busca lo que desees Preparar, Debes incluir un ingrediente Obligatorio" autocomplete="off">
           <button class="boton-tuerca" id="abrirFiltros" type="button" aria-label="Abrir filtros">⚙</button>
         </div>
         <div class="sugerencias" id="sugerencias"></div>
         <div class="ingredientes-elegidos" id="ingredientesElegidos"></div>
         <div class="opciones-busqueda">
-          <label class="faltantes-check"><input type="checkbox" name="pedirFaltantes" id="pedirFaltantes"> Mostrar ingredientes faltantes</label>
-          <label class="faltantes-check"><input type="checkbox" name="usarDespensa" id="usarDespensa"> Usar mi despensa</label>
+          <label class="faltantes-check"><input type="checkbox" name="pedirFaltantes" id="pedirFaltantes"> Mostrar ingredientes faltantes <%- include('Partials/indicadorMasterChef', { disponible: Boolean(planActual.masterchef) }) %></label>
+          <label class="faltantes-check"><input type="checkbox" name="usarDespensa" id="usarDespensa" <%= planActual.masterchef ? '' : 'disabled' %>> Usar mi despensa <% if (!planActual.masterchef) { %><a href="/despensa" aria-label="Descubre MasterChef para usar tu despensa"><%- include('Partials/indicadorMasterChef', { disponible: false }) %></a><% } else { %><%- include('Partials/indicadorMasterChef', { disponible: true }) %><% } %></label>
           <button class="boton-generar" id="generarRecetas" type="submit">✨ Generar recetas</button>
+          <button class="boton-cerrar-sesion" id="cancelarGeneracion" type="button" hidden>Cancelar generación</button>
         </div>
+        <p id="estadoGeneracion" role="status" aria-live="polite" hidden></p>
       </form>
 
       <h2 class="resultados-titulo">Tus recetas</h2>
       <section class="recetas-grid" id="recetas"></section>
+      <template id="indicadorFaltantesMasterChef"><%- include('Partials/indicadorMasterChef', { disponible: Boolean(planActual.masterchef) }) %></template>
 
   <div class="modal-inicio" id="modalFiltros">
     <section class="modal-panel">
       <button class="modal-cerrar" data-cerrar="modalFiltros">Cerrar</button>
       <h2>Ajusta tu receta</h2>
-      <div class="filtros-grupo"><h3>Tiempo de preparación</h3><div class="filtros-opciones" id="tiempos"></div></div>
-      <div class="filtros-grupo"><h3>Porciones</h3><div class="filtros-opciones" id="porciones"></div></div>
-      <div class="filtros-grupo"><h3>Dificultad</h3><div class="filtros-opciones" id="dificultad"></div></div>
+      <div class="filtros-grupo"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tiempo de preparación</h3><div class="filtros-opciones" id="tiempos"></div></div>
+      <div class="filtros-grupo"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 14 0v3m0-18a4 4 0 0 1 0 8m3 3a6 6 0 0 1 3 5v2"/></svg>Porciones</h3><div class="filtros-opciones" id="porciones"></div></div>
+      <div class="filtros-grupo"><h3><%- include('Partials/iconoSuscripcion', { nombre: 'chef' }) %>Dificultad</h3><div class="filtros-opciones" id="dificultad"></div></div>
       <div class="acciones-filtro"><button class="boton-generar" data-cerrar="modalFiltros">Guardar filtros</button></div>
     </section>
   </div>
@@ -51,6 +56,7 @@
     <section class="modal-panel" id="detalleReceta"></section>
   </div>
 </main>
+  <script src="/Js/resenas.js"></script>
   <script src="/Js/app.js"></script>
 </body>
 </html>

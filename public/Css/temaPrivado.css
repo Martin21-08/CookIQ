@@ -1,0 +1,86 @@
+/* Colores privados, aislados por clase del documento y estado oscuro.
+   El modo claro conserva Style.css. Sin filtros sobre fotografías o marcas. */
+.cookiq-privado[data-tema="oscuro"]{color-scheme:dark;--text:#f5effa;--cream:#191320;--cookiq-pink:#372843;--tema-acento:#c9a8ef;--tema-secundario:#c8b9d3;--tema-borde:#51405e;--tema-panel:#2b2137}
+.cookiq-privado[data-tema="oscuro"] body,.cookiq-privado[data-tema="oscuro"] .inicio-app{background:#191320;color:var(--text)}
+.cookiq-privado[data-tema="oscuro"] .inicio-sidebar{background-image:linear-gradient(to bottom,rgba(55,40,67,.94) 0%,rgba(43,33,55,.86) 45%,rgba(34,26,45,.68) 75%,rgba(25,19,32,.78) 100%),url('https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=80');background-position:center;background-size:cover;background-repeat:no-repeat}
+.cookiq-privado[data-tema="oscuro"] .inicio-menu a{color:#f5effa}
+.cookiq-privado[data-tema="oscuro"] .inicio-menu a:hover{background:rgba(112,75,158,.3);box-shadow:inset 0 0 0 1px var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] .inicio-menu a.activa{background:linear-gradient(135deg,#704b9e,#49315f);color:#fff;box-shadow:inset 0 0 0 1px var(--tema-acento),0 3px 12px rgba(112,75,158,.22)}
+.cookiq-privado[data-tema="oscuro"] :is(.buscador-caja,.receta-card,.receta-tarjeta,.historial-bloque,.perfil-seccion,.suscripcion-tarjeta,.modal-panel,.favorito-dialogo,.ajustes-perfil){background:var(--tema-panel);color:var(--text);border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] :is(.historial-item,.sugerencias,.sugerencia,.perfil-avatar-opciones,.perfil-avatar-menu summary,.ingrediente-chip,.etiqueta-ingrediente){background:#221a2d;color:var(--text);border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] .chip-ingrediente{background:#372843;color:#ead9fc;border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] :is(.faltantes-check,.link-compras){color:var(--tema-secundario)}
+.cookiq-privado[data-tema="oscuro"] :is(.inicio-encabezado p,.receta-cuerpo p,.credito-foto,.modal-panel p,.modal-panel li,.perfil-ayuda,.historial-item small,.suscripciones-intro,.suscripcion-descripcion,.sin-resultados,.sin-comentarios,.ajustes-perfil p,.agregar-linea label){color:var(--tema-secundario)}
+.cookiq-privado[data-tema="oscuro"] :is(.receta-cuerpo h3,.perfil-seccion h2,.perfil-seccion h3,.suscripcion-tarjeta h2,.perfil-subseccion,.suscripcion-volver,.suscripcion-aviso){color:var(--tema-acento)}
+.cookiq-privado[data-tema="oscuro"] :is(input,select,textarea){background:#221a2d;color:var(--text);border-color:var(--tema-borde);accent-color:var(--tema-acento)}
+.cookiq-privado[data-tema="oscuro"] :is(input,textarea)::placeholder{color:#b8a7c5;opacity:1}
+.cookiq-privado[data-tema="oscuro"] :is(.perfil-campos label,.perfil-inicial-grid label,.perfil-inicial-form legend,.perfil-avatar-opciones button){color:var(--tema-secundario)}
+.cookiq-privado[data-tema="oscuro"] .perfil-avatar-opciones button:hover{background:#49315f}
+.cookiq-privado[data-tema="oscuro"] .comentario-item{background:#221a2d;color:var(--text)}
+.cookiq-privado[data-tema="oscuro"] :is(.receta-imagen,.detalle-receta-foto){background:linear-gradient(135deg,#3a2747,#2a2039);color:var(--text)}
+.cookiq-privado[data-tema="oscuro"] :is(input,select,textarea):focus{outline-color:var(--tema-acento);border-color:var(--tema-acento)}
+.cookiq-privado[data-tema="oscuro"] :is(.boton-generar,.boton-mejorar-plan,.historial-item .acciones-despensa [data-completar-item]){background:linear-gradient(135deg,#704b9e,#9b4d16);color:white}
+.cookiq-privado[data-tema="oscuro"] :is(.boton-tuerca,.boton-ver,.boton-cerrar-sesion,.modal-cerrar,.perfil-opciones label,.comentarios-receta .resena-accion,.favorito-dialogo-acciones button,.info-tema-boton:not([hidden])){background:#372843;color:#ead9fc;border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] :is(.boton-ver,.boton-cerrar-sesion,.comentarios-receta .resena-accion):hover{background:#49315f}
+.cookiq-privado[data-tema="oscuro"] .favorito-dialogo-acciones .favorito-dialogo-confirmar{background:#704b9e;color:white}
+.cookiq-privado[data-tema="oscuro"] .comentarios-receta .resena-accion--eliminar{background:#49252b;color:#ffc4c0;border-color:#9b555d}
+.cookiq-privado[data-tema="oscuro"] .favorito-corazon{background:#372843;color:#e4c7fa}
+.cookiq-privado[data-tema="oscuro"] .favorito-corazon.activo{background:#49252b;color:#ffb5ad}
+.cookiq-privado[data-tema="oscuro"] :is(.receta-datos,.receta-verificacion-pendiente,.faltantes-lista,.comentarios-receta .resena-info){background:#493126;color:#ffd0a1;border-color:#ad783b}
+.cookiq-privado[data-tema="oscuro"] :is(.suscripcion-etiqueta,.perfil-avatar){background:#372843;color:var(--tema-acento)}
+.cookiq-privado[data-tema="oscuro"] .compras-supermercado{background:var(--tema-panel);color:var(--text);border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] :is(.compras-supermercados .compras-supermercados-descripcion,.compras-supermercado-texto small){color:var(--tema-secundario)}
+.cookiq-privado[data-tema="oscuro"] .compras-supermercados h3{color:var(--tema-acento)}
+/* Mantiene las marcas verdes/naranjas sobre un fondo claro; no altera sus colores. */
+.cookiq-privado[data-tema="oscuro"] .compras-supermercado-logo:not(.compras-supermercado-logo-blanco){background:#fffdf9}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql .compra-item{background:var(--tema-panel);border-color:var(--tema-borde);color:var(--text)}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql .compra-item:hover{background:#372843}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql :is([data-cantidad],[data-unidad]){background:#221a2d;color:var(--text);border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql [data-accion="guardar"]{background:#372843;color:#ead9fc}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql .compra-editada [data-accion="guardar"],.cookiq-privado[data-tema="oscuro"] #listaComprasMysql [data-accion="guardar"]:hover{background:#49315f}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql [data-accion="completar"]{background:#1c3d32;color:#b9f0d6}
+.cookiq-privado[data-tema="oscuro"] #listaComprasMysql [data-accion="eliminar"]{background:#49252b;color:#ffc4c0}
+.cookiq-privado[data-tema="oscuro"] :is(.favoritos-toast,.favoritos-toast[data-tipo="info"]){background:#2b2137;color:#ead9fc}
+.cookiq-privado[data-tema="oscuro"] :is(.mensaje-error,.favoritos-toast[data-tipo="error"]){background:#49252b;color:#ffc4c0;border-color:#c57778}
+.cookiq-privado[data-tema="oscuro"] .favoritos-toast[data-tipo="advertencia"]{background:#493126;color:#ffd0a1}
+.cookiq-privado[data-tema="oscuro"] .mensaje-exito{background:#1c3d32;color:#b9f0d6;border-color:#568f79}
+.cookiq-privado[data-tema="oscuro"] .sin-resultados{border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] .ajustes-perfil-seccion{border-color:var(--tema-borde)}
+.cookiq-privado[data-tema="oscuro"] .ajustes-perfil-apariencia{background:#221a2d}
+.cookiq-privado.info-tema-listo :is(.inicio-app,.inicio-sidebar,.perfil-seccion,.suscripcion-tarjeta,.historial-bloque,.modal-panel,.ajustes-perfil){transition:background-color .28s,color .28s,border-color .28s}
+
+/* Posición exclusiva del perfil: [Ajustes] [Mejorar plan]. */
+.perfil-encabezado.inicio-encabezado-con-plan{padding-right:330px}
+.perfil-acciones-cabecera{position:absolute;right:0;top:0;display:flex;align-items:center;gap:8px}
+.perfil-acciones-cabecera>.boton-mejorar-plan{position:static;white-space:nowrap;font:inherit;font-weight:800;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.perfil-acciones-cabecera>[hidden]{display:none}
+@media(max-width:1100px){.perfil-encabezado.inicio-encabezado-con-plan{padding-right:0;padding-top:0;flex-wrap:wrap}.perfil-acciones-cabecera{position:static;flex:0 0 100%;flex-wrap:wrap;justify-content:flex-end}.perfil-encabezado-texto{flex:1;min-width:0}}
+
+.ajustes-perfil{width:min(460px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;padding:24px;border:1px solid #d8b9e4;border-radius:20px;background:var(--cream);color:var(--text);font-family:'Nunito',Arial,sans-serif;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.ajustes-perfil::backdrop{background:rgba(33,25,43,.6)}
+.ajustes-perfil[open]{animation:ajustes-entrar .28s ease-out}
+.ajustes-perfil[open]::backdrop{animation:ajustes-fondo-entrar .28s ease-out}
+.ajustes-perfil[open].ajustes-perfil-saliendo{animation:ajustes-salir .28s ease-in forwards}
+.ajustes-perfil[open].ajustes-perfil-saliendo::backdrop{animation:ajustes-fondo-salir .28s ease-in forwards}
+.ajustes-perfil-cabecera{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+.ajustes-perfil-cabecera h2{margin:0;font-size:24px}.ajustes-perfil-cabecera .modal-cerrar{float:none;min-width:36px;min-height:36px;font-size:22px}
+.ajustes-perfil-seccion{border-top:1px solid #e5d8e9;padding-top:18px;margin-top:18px}.ajustes-perfil-seccion h3{font-size:17px;margin:0 0 7px}.ajustes-perfil-seccion p{font-size:14px;color:#715c4f;margin:0 0 16px;line-height:1.5}
+.ajustes-perfil-apariencia{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px;border-radius:12px;background:#f0e9f7;font-weight:800}
+.ajustes-movimiento{margin-top:12px;cursor:pointer}.ajustes-movimiento small{display:block;font-size:12px;font-weight:400;margin-top:5px;line-height:1.5}
+.ajustes-movimiento input{appearance:none;flex:0 0 42px;width:42px;height:24px;border:1px solid #b99bd5;border-radius:20px;background:#d6c5e8;cursor:pointer;position:relative}
+.ajustes-movimiento input::before{content:'';position:absolute;width:18px;height:18px;top:2px;left:2px;border-radius:50%;background:white;transition:transform .2s}
+.ajustes-movimiento input:checked{background:var(--cookiq-purple)}.ajustes-movimiento input:checked::before{transform:translateX(18px)}
+.ajustes-movimiento input:focus-visible{outline:2px solid var(--tema-acento,var(--cookiq-purple));outline-offset:3px}.ajustes-movimiento input:disabled{cursor:default}
+.ajustes-acerca summary{cursor:pointer;color:var(--tema-acento,var(--cookiq-purple));font-weight:800}.ajustes-acerca a{color:var(--tema-acento,var(--cookiq-purple));overflow-wrap:anywhere}.ajustes-acerca ul{padding-left:20px;line-height:1.7}
+.ajustes-cerrar-sesion{border:1px solid #c99191;background:transparent;color:#a33e35;padding:10px 14px;border-radius:12px;font:inherit;font-weight:800;cursor:pointer;transition:background-color .2s}.ajustes-cerrar-sesion:hover{background:#a33e3514}
+.cookiq-privado[data-tema="oscuro"] .ajustes-cerrar-sesion{color:#f2b4ae;border-color:#a66e75}
+.cookiq-privado[data-movimiento-reducido="true"] :is(.inicio-menu a,.boton-generar,.boton-mejorar-plan,.info-tema-boton,.info-tema-sol,.info-tema-luna,.ajustes-perfil,.ajustes-cerrar-sesion,#modalFiltros .filtro-opcion){transition:none!important;animation:none!important}
+.cookiq-privado[data-movimiento-reducido="true"] :is(.inicio-menu a,.boton-generar,.boton-mejorar-plan,#modalFiltros .filtro-opcion):is(:hover,:active){transform:none!important}
+.cookiq-privado[data-movimiento-reducido="true"] .ajustes-perfil::backdrop{animation:none!important}
+.cookiq-privado[data-movimiento-reducido="true"] .ajustes-movimiento input::before{transition:none}
+@media(prefers-reduced-motion:reduce){.ajustes-movimiento input::before{transition:none}.ajustes-cerrar-sesion{transition:none}}
+@keyframes ajustes-entrar{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes ajustes-salir{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(12px) scale(.97)}}
+@keyframes ajustes-fondo-entrar{from{background:rgba(33,25,43,0)}to{background:rgba(33,25,43,.6)}}
+@keyframes ajustes-fondo-salir{from{background:rgba(33,25,43,.6)}to{background:rgba(33,25,43,0)}}
+@media(prefers-reduced-motion:reduce){.cookiq-privado.info-tema-listo :is(.inicio-app,.inicio-sidebar,.perfil-seccion,.suscripcion-tarjeta,.historial-bloque,.modal-panel,.ajustes-perfil){transition:none!important}.ajustes-perfil[open],.ajustes-perfil[open]::backdrop{animation:none!important}}

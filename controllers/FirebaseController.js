@@ -1,4 +1,6 @@
 const firebaseModel = require('../models/firebaseModel');
+const registroService = require('../services/registroService');
+const { comprobarOrigen } = require('./registroController');
 
 /**
  * Entrega al frontend la configuración pública
@@ -64,6 +66,9 @@ async function loginGoogle(req, res) {
         }
 
         req.session.usuario = usuario;
+        req.flash('success', 'Inicio de sesión exitoso con Google');
+        req.session.fotoGoogle = req.firebaseGoogleUser.fotoGoogle || null;
+        req.session.fotoGoogleUsuarioId = usuario.id_usuario;
 
         return res.json({
             ok: true,
@@ -87,6 +92,7 @@ async function loginGoogle(req, res) {
  */
 async function registrarGoogle(req, res) {
     try {
+        comprobarOrigen(req);
         const { googleId, correo } = req.firebaseGoogleUser;
         const nombres = String(req.body.nombres || '').trim();
         const apellidos = String(req.body.apellidos || '').trim();
@@ -133,19 +139,10 @@ async function registrarGoogle(req, res) {
             });
         }
 
-        const usuario = await firebaseModel.crearUsuarioGoogle({
-            nombres,
-            apellidos,
-            correo,
-            telefono,
-            googleId
+        const pendiente = registroService.preparar(req, 'google', {
+            nombres, apellidos, correo, telefono, googleId
         });
-
-        req.session.usuario = usuario;
-        return res.status(201).json({
-            ok: true,
-            usuario
-        });
+        return res.status(202).json(pendiente);
     } catch (error) {
         console.error('Error en registro con Google:', {
             code: error.code || 'UNKNOWN',
@@ -159,102 +156,9 @@ async function registrarGoogle(req, res) {
             });
         }
 
-        return res.status(500).json({
+        return res.status(error.status || 500).json({
             ok: false,
-            error: 'No se pudo guardar el registro con Google. Inténtalo nuevamente.'
-        });
-    }
-}
-
-
-/**
- * Login mediante teléfono.
- *
- * Firebase verifica previamente el SMS.
- * Aquí solamente sincronizamos el usuario con MySQL.
- */
-async function loginTelefono(req, res) {
-    try {
-
-        const {
-            nombres,
-            apellidos,
-            correo,
-            telefono
-        } = req.body;
-
-        let usuario =
-            await firebaseModel.buscarPorTelefono(telefono);
-
-        if (usuario) {
-
-            req.session.usuario = usuario;
-
-            return res.json({
-                ok: true,
-                nuevo: false,
-                usuario
-            });
-        }
-
-        /*
-         * Si no existe el teléfono,
-         * buscamos por correo si existe.
-         */
-        if (correo) {
-
-            usuario =
-                await firebaseModel.buscarPorCorreo(correo);
-
-            if (usuario) {
-
-                usuario =
-                    await firebaseModel.actualizarPerfil(
-                        usuario.id_usuario,
-                        {
-                            nombres,
-                            apellidos,
-                            correo,
-                            telefono
-                        }
-                    );
-
-                req.session.usuario = usuario;
-
-                return res.json({
-                    ok: true,
-                    nuevo: false,
-                    usuario
-                });
-            }
-        }
-
-        /*
-         * Usuario completamente nuevo.
-         */
-        usuario =
-            await firebaseModel.crearUsuarioTelefono({
-                nombres,
-                apellidos,
-                correo,
-                telefono
-            });
-
-        req.session.usuario = usuario;
-
-        res.status(201).json({
-            ok: true,
-            nuevo: true,
-            usuario
-        });
-
-    } catch (error) {
-
-        console.error('Error en login SMS:', error);
-
-        res.status(500).json({
-            ok: false,
-            error: 'No se pudo sincronizar el usuario.'
+            error: error.status ? error.message : 'No se pudo guardar el registro con Google. Inténtalo nuevamente.'
         });
     }
 }
@@ -296,6 +200,86 @@ async function obtenerSesion(req, res) {
 
 
 /**
+ * Actualiza únicamente los datos personales de la cuenta de la sesión actual.
+ */
+async function actualizarPerfil(req, res) {
+    const idUsuario = Number(req.session?.usuario?.id_usuario);
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+        return res.status(401).json({
+            ok: false,
+            error: 'Debes iniciar sesión.'
+        });
+    }
+
+    const { nombres, apellidos, correo, telefono } = req.body || {};
+    if ([nombres, apellidos, correo, telefono].some(valor => typeof valor !== 'string')) {
+        return res.status(400).json({
+            ok: false,
+            error: 'Los datos personales enviados no son válidos.'
+        });
+    }
+
+    if (![nombres, apellidos, correo, telefono].every(valor => valor.trim())) {
+        return res.status(400).json({
+            ok: false,
+            error: 'Nombre, apellido, correo y teléfono son obligatorios.'
+        });
+    }
+
+    if (!/^\+569\d{8}$/.test(telefono.trim())) {
+        return res.status(400).json({
+            ok: false,
+            error: 'El teléfono debe tener el formato +569 seguido de ocho dígitos.'
+        });
+    }
+
+    try {
+        const usuario = await firebaseModel.actualizarPerfil(idUsuario, {
+            nombres: nombres.trim(),
+            apellidos: apellidos.trim(),
+            correo: correo.trim(),
+            telefono: telefono.trim()
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                ok: false,
+                error: 'No se encontró la cuenta de la sesión actual.'
+            });
+        }
+
+        req.session.usuario = usuario;
+        return res.json({
+            ok: true,
+            usuario: {
+                id_usuario: usuario.id_usuario,
+                nombres: usuario.nombres,
+                apellidos: usuario.apellidos,
+                correo: usuario.correo,
+                telefono: usuario.telefono
+            }
+        });
+    } catch (error) {
+        console.error('Error al actualizar datos personales:', {
+            code: error.code || 'UNKNOWN'
+        });
+
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+                ok: false,
+                error: 'El correo o teléfono ya está asociado a otra cuenta.'
+            });
+        }
+
+        return res.status(500).json({
+            ok: false,
+            error: 'No se pudieron guardar los datos personales.'
+        });
+    }
+}
+
+
+/**
  * Cierra la sesión de CookIQ.
  */
 function cerrarSesion(req, res) {
@@ -321,7 +305,7 @@ module.exports = {
     obtenerConfiguracionFirebase,
     loginGoogle,
     registrarGoogle,
-    loginTelefono,
     obtenerSesion,
+    actualizarPerfil,
     cerrarSesion
 };
