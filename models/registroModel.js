@@ -2,7 +2,7 @@ const db = require('../config/db');
 const usuarios = require('./userModel');
 const google = require('./firebaseModel');
 const preferencias = require('./preferenciasModel');
-const catalogos = require('./catalogomodel');
+const catalogos = require('./catalogoModel');
 
 async function crearConPreferencias(tipo, datos, seleccion) {
     const conexion = await db.getConnection();
