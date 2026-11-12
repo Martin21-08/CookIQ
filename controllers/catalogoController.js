@@ -2,7 +2,8 @@
 const {
     obtenerAlergias,
     obtenerIntolerancias
-} = require('../models/catalogomodel');
+} = 
+require('../models/catalogoModel');
 
 
 // Controlador que obtiene las alergias e intolerancias.
